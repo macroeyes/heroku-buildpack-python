@@ -258,7 +258,8 @@ else
 	bpwatch start conda_install
 fi
 
-/app/.heroku/python/bin/conda install --quiet --yes --file conda-requirements.txt | cleanup | indent
+# Actually install conda dependencies
+/app/.heroku/python/bin/conda install --yes --file conda-requirements.txt | cleanup | indent
 
 [ ! "$FRESH_CONDA" ] && bpwatch stop conda_install
 [ "$FRESH_CONDA" ] && bpwatch stop conda_install_first
