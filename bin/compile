@@ -29,6 +29,7 @@ DEFAULT_PYTHON_VERSION="python-2.7.8"
 PYTHON_EXE="/app/.heroku/python/bin/python"
 PIP_VERSION="1.5.6"
 SETUPTOOLS_VERSION="3.6"
+CONDA_VERSION="3.5.5"
 
 # Setup bpwatch
 export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
@@ -203,6 +204,30 @@ if [ "$FRESH_PYTHON" ] || [[ ! $(pip --version) == *$PIP_VERSION* ]]; then
     cd $WORKING_DIR
 
   bpwatch stop install_pip
+
+  # Only if Conda is up to date
+  [[ $(conda -V) == *$CONDA_VERSION* ]] && bpwatch stop prepare_environment
+fi
+
+# If Conda isn't up to date
+if [[ ! $(conda -V) == *$CONDA_VERSION* ]]; then
+  bpwatch start install_conda
+    puts-step "Installing Conda ($CONDA_VERSION)"
+
+    cd $ROOT_DIR/vendor/
+    tar zxf conda-$CONDA_VERSION.tar.gz
+
+    cd $WORKING_DIR
+    pip install $ROOT_DIR/vendor/conda-$CONDA_VERSION --exists-action=w --src=./.heroku/src | cleanup | indent
+
+    # Record for future reference.
+    echo $CONDA_VERSION > .heroku/conda-version
+	FRESH_CONDA=true
+
+	hash -r
+  bpwatch stop install_conda
+
+  # (See line 206)
   bpwatch stop prepare_environment
 fi
 
@@ -222,9 +247,24 @@ if (grep -Fiq "hg+" requirements.txt); then
   bpwatch stop mercurial_install
 fi
 
-# Install dependencies with Pip.
-puts-step "Installing dependencies using Pip ($PIP_VERSION)"
+# Install anaconda dependencies with Conda
+puts-step "Installing anaconda dependencies using Conda ($CONDA_VERSION)"
 
+if [ "$FRESH_CONDA" ]; then
+	bpwatch start conda_install_first
+	# @TODO: This could use some finesse
+	conda init
+else
+	bpwatch start conda_install
+fi
+
+/app/.heroku/python/bin/conda install --quiet --yes --file conda-requirements.txt | cleanup | indent
+
+[ ! "$FRESH_CONDA" ] && bpwatch stop conda_install
+[ "$FRESH_CONDA" ] && bpwatch stop conda_install_first
+
+# Install python dependencies with Pip.
+puts-step "Installing dependencies using Pip ($PIP_VERSION)"
 
 [ ! "$FRESH_PYTHON" ] && bpwatch start pip_install
 [ "$FRESH_PYTHON" ] && bpwatch start pip_install_first
@@ -233,11 +273,6 @@ puts-step "Installing dependencies using Pip ($PIP_VERSION)"
 
 [ ! "$FRESH_PYTHON" ] && bpwatch stop pip_install
 [ "$FRESH_PYTHON" ] && bpwatch stop pip_install_first
-
-# Conda Support
-bpwatch start conda
-  sub-env $BIN_DIR/steps/conda
-bpwatch stop conda
 
 # Django collectstatic support.
 bpwatch start collectstatic
