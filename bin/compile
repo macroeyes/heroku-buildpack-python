@@ -216,7 +216,7 @@ bpwatch start pylibmc_install
 bpwatch stop pylibmc_install
 
 # Install Mercurial if it appears to be required.
-if (grep -Fiq "hg+" requirements.txt) then
+if (grep -Fiq "hg+" requirements.txt); then
   bpwatch start mercurial_install
     /app/.heroku/python/bin/pip install  mercurial | cleanup | indent
   bpwatch stop mercurial_install
@@ -233,6 +233,11 @@ puts-step "Installing dependencies using Pip ($PIP_VERSION)"
 
 [ ! "$FRESH_PYTHON" ] && bpwatch stop pip_install
 [ "$FRESH_PYTHON" ] && bpwatch stop pip_install_first
+
+# Continuumio (Ana)conda Support
+bpwatch start conda
+  sub-env $BIN_DIR/steps/conda
+bpwatch stop conda
 
 # Django collectstatic support.
 bpwatch start collectstatic

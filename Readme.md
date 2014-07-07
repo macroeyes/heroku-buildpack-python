@@ -1,7 +1,7 @@
 Heroku buildpack: Python
 ========================
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Python apps, powered by [pip](http://www.pip-installer.org/).
+This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Python apps, powered by [pip](http://www.pip-installer.org/) and [conda](https://github.com/conda/conda).
 
 
 Usage
@@ -33,9 +33,9 @@ You can also add it to upcoming builds of an existing application:
 
     $ heroku config:add BUILDPACK_URL=git://github.com/heroku/heroku-buildpack-python.git
 
-The buildpack will detect your app as Python if it has the file `requirements.txt` in the root.
+The buildpack will detect your app as Python if it has the file `requirements.txt` or `conda-requirements.txt` in the root.
 
-It will use Pip to install your dependencies, vendoring a copy of the Python runtime into your slug.
+Pip and Conda will be used to install your python and anaconda dependencies (respectively), vendoring a copy of the Python runtime into your slug.
 
 Specify a Runtime
 -----------------
