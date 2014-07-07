@@ -218,7 +218,7 @@ if [[ ! $(/app/.heroku/python/bin/conda -V 2>/dev/null) == *$CONDA_VERSION* ]]; 
     tar zxf conda-$CONDA_VERSION.tar.gz
 
     cd $WORKING_DIR
-    pip install $ROOT_DIR/vendor/conda-$CONDA_VERSION --exists-action=w --src=./.heroku/src | cleanup | indent
+    pip install $ROOT_DIR/vendor/conda-$CONDA_VERSION --quiet --exists-action=w --src=./.heroku/src | cleanup | indent
 
     # Record for future reference.
     echo $CONDA_VERSION > .heroku/conda-version
