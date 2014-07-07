@@ -206,11 +206,11 @@ if [ "$FRESH_PYTHON" ] || [[ ! $(pip --version) == *$PIP_VERSION* ]]; then
   bpwatch stop install_pip
 
   # Only if Conda is up to date
-  [[ $(conda -V) == *$CONDA_VERSION* ]] && bpwatch stop prepare_environment
+  [[ $(/app/.heroku/python/bin/conda -V 2>/dev/null) == *$CONDA_VERSION* ]] && bpwatch stop prepare_environment
 fi
 
 # If Conda isn't up to date
-if [[ ! $(conda -V) == *$CONDA_VERSION* ]]; then
+if [[ ! $(/app/.heroku/python/bin/conda -V 2>/dev/null) == *$CONDA_VERSION* ]]; then
   bpwatch start install_conda
     puts-step "Installing Conda ($CONDA_VERSION)"
 
