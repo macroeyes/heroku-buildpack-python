@@ -234,7 +234,7 @@ puts-step "Installing dependencies using Pip ($PIP_VERSION)"
 [ ! "$FRESH_PYTHON" ] && bpwatch stop pip_install
 [ "$FRESH_PYTHON" ] && bpwatch stop pip_install_first
 
-# Continuumio (Ana)conda Support
+# Conda Support
 bpwatch start conda
   sub-env $BIN_DIR/steps/conda
 bpwatch stop conda
