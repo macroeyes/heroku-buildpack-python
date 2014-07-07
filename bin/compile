@@ -247,22 +247,20 @@ if (grep -Fiq "hg+" requirements.txt); then
   bpwatch stop mercurial_install
 fi
 
-# Install anaconda dependencies with Conda
-puts-step "Installing anaconda dependencies using Conda ($CONDA_VERSION)"
-
+# Initialize Conda
 if [ "$FRESH_CONDA" ]; then
-	bpwatch start conda_install_first
+  puts-step "Initializing Conda ($CONDA_VERSION)"
+  bpwatch start conda_init
 	# @TODO: This could use some finesse
-	conda init
-else
-	bpwatch start conda_install
+	/app/.heroku/python/bin/conda init | cleanup | indent
+  bpwatch stop conda_init
 fi
 
-# Actually install conda dependencies
-/app/.heroku/python/bin/conda install --yes --file conda-requirements.txt | cleanup | indent
-
-[ ! "$FRESH_CONDA" ] && bpwatch stop conda_install
-[ "$FRESH_CONDA" ] && bpwatch stop conda_install_first
+# Install anaconda dependencies with Conda
+puts-step "Installing dependencies using Conda ($CONDA_VERSION)"
+bpwatch start conda_install
+  /app/.heroku/python/bin/conda install --yes --file conda-requirements.txt | cleanup | indent
+bpwatch stop conda_install
 
 # Install python dependencies with Pip.
 puts-step "Installing dependencies using Pip ($PIP_VERSION)"

@@ -20,7 +20,7 @@ if [ ! -f $BUILD_DIR/requirements.txt ] && [ ! -f $BUILD_DIR/setup.py ] && [ ! -
 fi
 
 if [ -f $BUILD_DIR/conda-requirements.txt ]; then
-	echo Python, Conda
+	echo 'Python (with conda)'
 else
 	echo Python
 fi
